@@ -1,4 +1,4 @@
-package com.iit.semika.asd;
+package com.iit.semika.assembly;
 
 import java.util.Date;
 

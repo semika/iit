@@ -2,6 +2,9 @@ package com.iit.semika.asd;
 
 import java.util.Date;
 
+import com.iit.semika.assembly.Part;
+import com.iit.semika.assembly.PartCatalogEntry;
+
 public class Main {
 
 	public static void main(String[] args) {

@@ -1,8 +1,8 @@
-package com.iit.semika.asd;
+package com.iit.semika.assembly;
 
 import java.util.Date;
 
-public class Part {
+public class Part extends Component {
 	
 	private Long id;
 	private String number;
