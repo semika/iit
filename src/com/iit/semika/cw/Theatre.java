@@ -4,14 +4,31 @@ import java.time.LocalTime;
 
 public class Theatre extends Attraction {
 
-	private Integer capacity;
+	private Integer numberOfSeats;
 	
+	/**
+	 * Since a price for admittance is always applicable for theatre, constructor has the
+	 * price attribute. 
+	 *
+	 */
+	public Theatre(String name, String location, Double price, LocalTime openTime, 
+			LocalTime closeTime, Integer numberOfSeats, String telephoneNumber) {
+		
+		super(name, location, price, openTime, closeTime, telephoneNumber); 
+		this.numberOfSeats = numberOfSeats;
+	}
 	
-	public Theatre(String name, String location, Double price, LocalTime openTime, LocalTime closeTime, Integer capacity) {
-		super(name, location, price, openTime, closeTime); 
-		this.capacity = capacity;
+	public Integer getNumberOfSeats() {
+		return numberOfSeats;
 	}
 
-	//setters and getters
+	public void setNumberOfSeats(Integer numberOfSeats) {
+		this.numberOfSeats = numberOfSeats;
+	}
+
+
+	public void reserveSeat(String visitorName, String seatNumber) {
+		//code to reserve a seat.
+	}
 	
 }

@@ -1,0 +1,10 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: A sample template
+Resources:
+  MyTestS3Bucket:  # The resource name 
+     Type: "AWS::S3::Bucket"  #Type of the AWS resource
+     Properties: 
+      # Properties of each resource, There are clear documentation for these properties, 
+      # Ex:https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket.html#cfn-s3-bucket-accesscontrol
+         BucketName : "semika"
+         AccessControl: "Private" 

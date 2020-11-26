@@ -1,0 +1,89 @@
+#Create stack command = aws cloudformation create-stack --stack-name IitAseVpcStack --template-body file://aws-cf-vpc-create.yml
+#Update stack command = aws cloudformation update-stack --stack-name IitAseVpcStack --template-body file://aws-cf-vpc-create.yml
+#Delete stack command = aws cloudformation delete-stack --stack-name IitAseVpcStack
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: A sample template
+Resources:
+
+     Vpc:  # The resource name 
+         Type: "AWS::EC2::VPC"  #Type of the AWS resource
+         Properties: 
+             CidrBlock : "10.0.0.0/16"
+             InstanceTenancy: "default"
+             Tags:
+                - Key: "IIT"
+                  Value: "ASE"
+
+     Subnet:          
+         Type: AWS::EC2::Subnet
+         DependsOn: Vpc
+         Properties: 
+             AvailabilityZone: "ap-southeast-1a"
+             CidrBlock: "10.0.0.0/24"
+             VpcId: !Ref Vpc
+             MapPublicIpOnLaunch : "true"  # when launching instances within this subnet, instances will get public IP so that, we can connect into it.
+             
+     
+     InternetGateway:
+         Type: AWS::EC2::InternetGateway
+         DependsOn : Vpc
+         
+     
+     InternetGatewayAttachment:
+         Type: AWS::EC2::VPCGatewayAttachment
+         DependsOn: 
+         - InternetGateway
+         - Vpc
+         Properties:
+             VpcId: !Ref Vpc
+             InternetGatewayId: !Ref InternetGateway
+             
+     
+     #Public Route Table        
+     RouteTable:
+         Type: AWS::EC2::RouteTable
+         Properties:
+             VpcId: !Ref Vpc
+             
+
+     #Route traffic to internet from subnet        
+     Route:
+         Type: AWS::EC2::Route
+         DependsOn: 
+         - RouteTable
+         - InternetGateway
+         - InternetGatewayAttachment
+         Properties:
+             RouteTableId: !Ref RouteTable
+             DestinationCidrBlock: 0.0.0.0/0
+             GatewayId: !Ref InternetGateway
+             
+
+     SubnetRouteTableAssociation:
+         Type: AWS::EC2::SubnetRouteTableAssociation
+         Properties:
+             SubnetId: !Ref Subnet
+             RouteTableId: !Ref RouteTable
+     Instance:
+         Type: AWS::EC2::Instance
+         Properties:
+             KeyName : "IIT-ASE"
+             SubnetId: !Ref Subnet
+             ImageId: "ami-015a6758451df3cb9"
+             InstanceType: "t2.micro"
+             BlockDeviceMappings: 
+               - DeviceName: /dev/sda1
+                 Ebs:
+                     VolumeSize: 10
+                     VolumeType: "gp2"
+                     DeleteOnTermination : "true"
+             
+             
+Outputs: 
+     IITSubnet:
+         Description: IIT Subnet
+         Value: !Ref Subnet
+         Export:
+             Name: !Sub "${AWS::StackName}-SubnetID"
+        

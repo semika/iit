@@ -12,6 +12,12 @@ public class Main {
 		
 		for (Attraction attraction : attractionList) {
 			
+			if (attraction.getOpenTime().isAfter(LocalTime.parse("19:00"))) {  
+				System.out.println(attraction.getName() + " opens after 19:00"); 
+			}
+			if (attraction.getPrice() < 5 && attraction.getPrice() > 0) {
+				System.out.println(attraction.getName() + " price is less than $5"); 
+			}
 		}
 	}
 	
@@ -20,21 +26,24 @@ public class Main {
 		List<Attraction> attractionList = new ArrayList<Attraction>(); 
 
 		//Create Park object. No 'price' for Park
+		Attraction park = new Park("New Forest National Park", "Norwich NR1 1RY", 
+				LocalTime.parse("08:00"), LocalTime.parse("17:00"), "011254545", ParkType.NATURE);  
 		
-		Attraction park = new Park("New Forest National Park", "Norwich NR1 1RY", LocalTime.parse("08:00"), LocalTime.parse("17:00")); 
 		attractionList.add(park);
 		
-		//Create charged museum.
-		
-		Attraction charedMuseum = new Museum("Charged Musseum", "Norwich NR10 12RY", 6.5, LocalTime.parse("08:00"), LocalTime.parse("17:00")); 
+		//Create Museum object with 'Price'
+		Attraction charedMuseum = new Museum("Charged Musseum", "Norwich NR10 12RY", 4.5, 
+				LocalTime.parse("08:00"), LocalTime.parse("17:00"),  "011254545"); 
 		attractionList.add(charedMuseum);
 		
-		//Create free museum
-		Attraction freeMuseum = new Museum("Free Museum", "Norwich NR35 09RY", LocalTime.parse("08:00"), LocalTime.parse("17:00")); 
+		//Create Museum object without 'Price'
+		Attraction freeMuseum = new Museum("Free Museum", "Norwich NR35 09RY", 
+				LocalTime.parse("08:00"), LocalTime.parse("17:00"),  "011254545"); 
 		attractionList.add(freeMuseum);
 		
 		//Create theatre
-		Attraction theatre = new Theatre("Savory", "Wellawattha", 120.0, LocalTime.parse("19:00"), LocalTime.parse("21:00"), 500); 
+		Attraction theatre = new Theatre("Savory", "Wellawattha", 120.0, 
+				LocalTime.parse("19:30"), LocalTime.parse("21:00"), 500,  "011254545"); 
 		attractionList.add(theatre); 
 		
 		return attractionList;
