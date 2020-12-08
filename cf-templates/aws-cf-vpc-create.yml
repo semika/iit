@@ -1,6 +1,6 @@
-#Create stack command = aws cloudformation create-stack --stack-name IitAseVpcStack --template-body file://aws-cf-vpc-create.yml
-#Update stack command = aws cloudformation update-stack --stack-name IitAseVpcStack --template-body file://aws-cf-vpc-create.yml
-#Delete stack command = aws cloudformation delete-stack --stack-name IitAseVpcStack
+#Create stack command = aws cloudformation create-stack --stack-name IIT-ASE-SIMPLE-STACK --template-body file://aws-cf-vpc-create.yml
+#Update stack command = aws cloudformation update-stack --stack-name IIT-ASE-SIMPLE-STACK --template-body file://aws-cf-vpc-create.yml
+#Delete stack command = aws cloudformation delete-stack --stack-name IIT-ASE-SIMPLE-STACK
 
 AWSTemplateFormatVersion: "2010-09-09"
 Description: A sample template
@@ -66,18 +66,22 @@ Resources:
              SubnetId: !Ref Subnet
              RouteTableId: !Ref RouteTable
      Instance:
-         Type: AWS::EC2::Instance
-         Properties:
-             KeyName : "IIT-ASE"
-             SubnetId: !Ref Subnet
-             ImageId: "ami-015a6758451df3cb9"
-             InstanceType: "t2.micro"
-             BlockDeviceMappings: 
-               - DeviceName: /dev/sda1
-                 Ebs:
-                     VolumeSize: 10
-                     VolumeType: "gp2"
-                     DeleteOnTermination : "true"
+        Type: AWS::EC2::Instance
+        Properties:
+            ImageId: !FindInMap [ AWSRegionArch2AMI, !Ref 'AWS::Region' , !FindInMap [ AWSInstanceType2Arch, !Ref InstanceType, Arch ] ]
+            KeyName: "IIT-ASE"
+            InstanceType: !Ref InstanceType
+            SecurityGroups:
+            - !Ref Ec2SecurityGroup
+            BlockDeviceMappings:
+            -
+              DeviceName: /dev/sda1
+              Ebs:
+                VolumeSize: 50
+            -
+              DeviceName: /dev/sdm
+              Ebs:
+                VolumeSize: 100
              
              
 Outputs: 

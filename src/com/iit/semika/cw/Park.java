@@ -6,6 +6,7 @@ public class Park extends Attraction {
 	
 	private ParkType type;
 
+	//No 'priceOfAdmittence' attribute as an argument
 	public Park(String name, String location, LocalTime openTime, 
 			LocalTime closeTime, String telephoneNumber, ParkType type) {
 		

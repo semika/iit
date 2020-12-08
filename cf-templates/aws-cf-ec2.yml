@@ -3,20 +3,24 @@
 #Delete stack command = aws cloudformation delete-stack --stack-name IitAseEc2Stack
 
 AWSTemplateFormatVersion: "2010-09-09"
-Description: A sample template
+Description: "EC2 Deployment"
 Resources:
      Instance:
          Type: AWS::EC2::Instance
          Properties:
              KeyName : "IIT-ASE"
              SubnetId: 
-                Fn::ImportValue: "IitAseVpcStack-SubnetID"
-             ImageId: "ami-015a6758451df3cb9"
+                Fn::ImportValue: "IitAseVpcStack-SubnetAID"
+             ImageId: "ami-0d728fd4e52be968f"
              InstanceType: "t2.micro"
              BlockDeviceMappings: 
-                 - DeviceName: /dev/sda1
-                   Ebs:
-                         VolumeSize: 10
-                         VolumeType: "gp2"
-                         DeleteOnTermination : "true"
-        
+                - DeviceName: /dev/sda1
+                  Ebs:
+                      VolumeSize: 10
+                      VolumeType: "gp2"
+                      DeleteOnTermination : "true"
+             Tags:
+                - Key: "Name"
+                  Value: "IIT-ASE"
+             SecurityGroupIds:
+                - Fn::ImportValue: "IitAseVpcStack-VPCSecurityGroup"

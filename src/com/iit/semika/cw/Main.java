@@ -15,7 +15,7 @@ public class Main {
 			if (attraction.getOpenTime().isAfter(LocalTime.parse("19:00"))) {  
 				System.out.println(attraction.getName() + " opens after 19:00"); 
 			}
-			if (attraction.getPrice() < 5 && attraction.getPrice() > 0) {
+			if (attraction.getPriceoOfAdmittence() < 5 && attraction.getPriceoOfAdmittence() > 0) {
 				System.out.println(attraction.getName() + " price is less than $5"); 
 			}
 		}

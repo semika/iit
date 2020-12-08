@@ -1,0 +1,160 @@
+#Create stack command = aws cloudformation create-stack --stack-name IitAseVpcStack --template-body file://aws-cf-vpc-with-three-subnet.yml
+#Update stack command = aws cloudformation update-stack --stack-name IitAseVpcStack --template-body file://aws-cf-vpc-with-three-subnet.yml
+#Delete stack command = aws cloudformation delete-stack --stack-name IitAseVpcStack
+#Describe stack       = aws cloudformation describe-stacks --stack-name IitAseVpcStack
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: A sample template
+Resources:
+
+     Vpc:  # The resource name 
+         Type: "AWS::EC2::VPC"  #Type of the AWS resource
+         Properties: 
+             CidrBlock : "10.0.0.0/24"
+             InstanceTenancy: "default"
+             EnableDnsSupport: true
+             EnableDnsHostnames: true
+             Tags:
+                - Key: "Name"
+                  Value: "IIT-ASE"
+     
+     VPCSecurityGroup:
+        Type: AWS::EC2::SecurityGroup
+        Properties: 
+            GroupDescription: "The security group for the VPC"
+            GroupName: "IIT-ASE-CW"
+            SecurityGroupEgress: 
+                - IpProtocol: -1
+                  CidrIp: 0.0.0.0/0
+            SecurityGroupIngress: 
+                - IpProtocol: -1
+                  CidrIp: 0.0.0.0/0
+            VpcId: !Ref Vpc
+            Tags: 
+                - Key: "Name"
+                  Value: "IIT-ASE" 
+            
+     SubnetA:          
+         Type: AWS::EC2::Subnet
+         DependsOn: Vpc
+         Properties: 
+             AvailabilityZone: "ap-southeast-1a"
+             CidrBlock: "10.0.0.0/26"  # will allow  64 IPs from 10.0.0.0 to 10.0.0.63
+             VpcId: !Ref Vpc
+             MapPublicIpOnLaunch : "true"  # when launching instances within this subnet, instances will get public IP so that, we can connect into it.
+             Tags:
+                - Key: "IIT"
+                  Value: "ASE"
+     
+     SubnetB:          
+         Type: AWS::EC2::Subnet
+         DependsOn: Vpc
+         Properties: 
+             AvailabilityZone: "ap-southeast-1b"
+             CidrBlock: "10.0.0.64/26" # will allow  64 IPs from 10.0.0.64 to 10.0.0.127
+             VpcId: !Ref Vpc
+             MapPublicIpOnLaunch : "true"  # when launching instances within this subnet, instances will get public IP so that, we can connect into it.    
+             Tags:
+                - Key: "IIT"
+                  Value: "ASE"    
+     
+     SubnetC:          
+         Type: AWS::EC2::Subnet
+         DependsOn: Vpc
+         Properties: 
+             AvailabilityZone: "ap-southeast-1c"
+             CidrBlock: "10.0.0.128/26" # will allow  128 IPs from 10.0.0.128 to 10.0.0.255
+             VpcId: !Ref Vpc
+             MapPublicIpOnLaunch : "true"  # when launching instances within this subnet, instances will get public IP so that, we can connect into it. 
+             Tags:
+                - Key: "IIT"
+                  Value: "ASE"      
+     
+     InternetGateway:
+         Type: AWS::EC2::InternetGateway
+         Properties:
+            Tags:
+                - Key: "Name"
+                  Value: "IIT-ASE"
+         DependsOn : Vpc
+
+
+         
+     InternetGatewayAttachment:  # Attach the internet gateway to to VPC.
+         Type: AWS::EC2::VPCGatewayAttachment
+         DependsOn: 
+         - InternetGateway
+         - Vpc
+         Properties:
+             VpcId: !Ref Vpc
+             InternetGatewayId: !Ref InternetGateway
+             
+     
+     #Public Route Table        
+     RouteTable:
+         Type: AWS::EC2::RouteTable
+         Properties:
+             VpcId: !Ref Vpc
+             Tags:
+                - Key: "Name"
+                  Value: "IIT-ASE"
+             
+
+     #Route traffic to internet from subnet        
+     Route:
+         Type: AWS::EC2::Route
+         DependsOn: 
+         - RouteTable
+         - InternetGateway
+         - InternetGatewayAttachment
+         Properties:
+             RouteTableId: !Ref RouteTable
+             DestinationCidrBlock: 0.0.0.0/0
+             GatewayId: !Ref InternetGateway
+             
+
+     SubnetARouteTableAssociation: # Associate route table to each subnet
+         Type: AWS::EC2::SubnetRouteTableAssociation
+         Properties:
+             SubnetId: !Ref SubnetA
+             RouteTableId: !Ref RouteTable
+
+     SubnetBRouteTableAssociation: # Associate route table to each subnet
+         Type: AWS::EC2::SubnetRouteTableAssociation
+         Properties:
+             SubnetId: !Ref SubnetB
+             RouteTableId: !Ref RouteTable
+
+     SubnetCRouteTableAssociation: # Associate route table to each subnet
+         Type: AWS::EC2::SubnetRouteTableAssociation
+         Properties:
+             SubnetId: !Ref SubnetC
+             RouteTableId: !Ref RouteTable
+
+Outputs: 
+     IITAseCwVpc:
+        Description: "IIT ASE Course Work VPC"
+        Value: !Ref Vpc
+        Export:
+             Name: !Sub "${AWS::StackName}-VPCID"
+     IITAseSubnetA:
+         Description: "IIT ASE Public Subnet A"
+         Value: !Ref SubnetA
+         Export:
+             Name: !Sub "${AWS::StackName}-SubnetAID"
+     IITAseSubnetB:
+         Description: "IIT ASE Public Subnet B"
+         Value: !Ref SubnetB
+         Export:
+             Name: !Sub "${AWS::StackName}-SubnetBID"
+     IITAseSubnetC:
+         Description: "IIT ASE Public Subnet C"
+         Value: !Ref SubnetC
+         Export:
+             Name: !Sub "${AWS::StackName}-SubnetCID"
+     IITAseVpcSecurityGroup:
+         Description: "IIT ASE Security Group"
+         Value: !Ref VPCSecurityGroup
+         Export:
+            Name: !Sub "${AWS::StackName}-VPCSecurityGroup"
+        

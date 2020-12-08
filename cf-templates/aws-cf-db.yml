@@ -1,0 +1,46 @@
+# Create stack command = aws cloudformation create-stack --stack-name IitAseDBStack --template-body file://aws-cf-db.yml
+# Update stack command = aws cloudformation update-stack --stack-name IitAseDBStack --template-body file://aws-cf-db.yml
+# Delete stack command = aws cloudformation delete-stack --stack-name IitAseDBStack
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "DB Instance"
+Resources:
+     AseCwDbSubnetGroup:
+        Type: "AWS::RDS::DBSubnetGroup"  
+        Properties: 
+          DBSubnetGroupDescription: "DB subnet group for ASE CW"
+          DBSubnetGroupName: "ASE-CW-DB-Subnet-Group"
+          SubnetIds: 
+            - Fn::ImportValue: "IitAseVpcStack-SubnetAID"
+            - Fn::ImportValue: "IitAseVpcStack-SubnetBID"
+            - Fn::ImportValue: "IitAseVpcStack-SubnetCID"
+          Tags: 
+            - 
+              Key: String
+              Value: String
+        
+     AseCwDb:
+        Type: AWS::RDS::DBInstance
+        DependsOn: AseCwDbSubnetGroup
+        Properties:
+          DBInstanceClass: db.t2.small
+          Engine: "mysql"
+          EngineVersion: "8.0.20"
+          MasterUsername: "root"
+          MasterUserPassword: "iitasecw"
+          AllocatedStorage: '5'
+          DBInstanceIdentifier: "asecw" #AWS RDS DB instance identifier.
+          DBName: "asecw" # The name of the database to create when the DB instance is created. If this parameter is not specified, no database is created in the DB instance.
+          DeletionProtection: false
+          Port: 3306
+          PubliclyAccessible : true #Allow to access the DB instance publically via resolved DNS
+          EnableCloudwatchLogsExports:
+            - error
+            - general
+            - slowquery 
+          VPCSecurityGroups:
+           - Fn::ImportValue: "IitAseVpcStack-VPCSecurityGroup"
+          DBSubnetGroupName: "ASE-CW-DB-Subnet-Group" 
+          #Tags:
+           # - Key : "Name"
+            #- Value : "ASE-CW-DB"
